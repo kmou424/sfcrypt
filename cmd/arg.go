@@ -50,8 +50,12 @@ func argCheck() {
 		os.Exit(1)
 	}).Deploy()
 
-	if version {
+	if len(os.Args) == 1 {
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
 
+	if version {
 		fmt.Printf("sfcrypt %s by kmou424\n", consts.GetVersion())
 		os.Exit(0)
 	}
