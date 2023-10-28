@@ -12,5 +12,5 @@ func main() {
 		os.Exit(1)
 	}).Deploy()
 
-	core.SFCryptCli(core.NewSFCryptCliArgs(input, output, password, salt, threads))
+	core.SFCryptCli(core.NewSFCryptCliArgs(input, output, password, salt, overwrite, threads))
 }

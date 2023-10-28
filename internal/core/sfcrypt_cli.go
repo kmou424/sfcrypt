@@ -8,19 +8,21 @@ import (
 )
 
 type SFCryptCliArgs struct {
-	input    string
-	output   string
-	password string
-	salt     string
-	threads  int
+	input     string
+	output    string
+	password  string
+	salt      string
+	overwrite bool
+	threads   int
 }
 
-func NewSFCryptCliArgs(input string, output string, password string, salt string, threads int) *SFCryptCliArgs {
+func NewSFCryptCliArgs(input string, output string, password string, salt string, overwrite bool, threads int) *SFCryptCliArgs {
 	return &SFCryptCliArgs{
 		input,
 		output,
 		password,
 		salt,
+		overwrite,
 		threads,
 	}
 }
@@ -34,6 +36,10 @@ func SFCryptCli(args *SFCryptCliArgs) {
 		args.threads = consts.MaxThreads
 	} else if args.threads < 0 {
 		args.threads = consts.DefaultThreads
+	}
+
+	if args.overwrite {
+		args.output = args.input
 	}
 
 	start := time.Now()

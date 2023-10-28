@@ -6,6 +6,7 @@ import (
 	"github.com/kmou424/sfcrypt/internal/types"
 	"github.com/kmou424/sfcrypt/internal/utils"
 	"io"
+	"os"
 	"runtime"
 	"sync"
 )
@@ -15,11 +16,20 @@ func SFCryptFile(input string, output string, blockSize int, password string, th
 	var wg sync.WaitGroup
 	var eof bool
 
+	var (
+		inputFile  *os.File
+		outputFile *os.File
+	)
+
 	inputFile, err := fsutil.OpenReadFile(input)
 	exceptiongo.QuickThrow[types.IOException](err)
 	defer inputFile.Close()
 
-	outputFile, err := fsutil.QuickOpenFile(output, 0755)
+	if input == output {
+		outputFile, err = fsutil.OpenFile(output, fsutil.FsCWFlags, 0755)
+	} else {
+		outputFile, err = fsutil.QuickOpenFile(output, 0755)
+	}
 	exceptiongo.QuickThrow[types.IOException](err)
 	defer outputFile.Close()
 

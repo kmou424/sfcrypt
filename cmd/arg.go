@@ -14,6 +14,7 @@ import (
 var input string
 var output string
 var threads int
+var overwrite bool
 
 var password string
 var salt string
@@ -35,6 +36,8 @@ func init() {
 
 	flag.StringVar(&salt, "s", "", "set extra salt to increase security (suggested, optional)")
 	flag.StringVar(&salt, "salt", "", "set extra salt to increase security (suggested, optional, same as -s)")
+
+	flag.BoolVar(&overwrite, "overwrite", false, "overwrite input file (will ignore if output file is specified)")
 
 	flag.BoolVar(&version, "v", false, "show version")
 	flag.BoolVar(&version, "version", false, "show version (same as -v)")
@@ -64,8 +67,12 @@ func argCheck() {
 		exceptiongo.QuickThrowMsg[types.InvalidArgumentException]("input file is required")
 	}
 
-	if strutil.IsEmpty(output) {
+	if strutil.IsEmpty(output) && !overwrite {
 		exceptiongo.QuickThrowMsg[types.InvalidArgumentException]("output file is required")
+	}
+
+	if overwrite {
+		fmt.Println("NOTICE: overwrite is enabled, sfcrypt will write to input file and ignore output file if specified")
 	}
 
 	if strutil.IsEmpty(password) {
