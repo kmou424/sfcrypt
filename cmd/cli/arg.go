@@ -6,7 +6,8 @@ import (
 	"github.com/gookit/goutil/fsutil"
 	"github.com/gookit/goutil/strutil"
 	"github.com/kmou424/sfcrypt/internal/consts"
-	"github.com/kmou424/sfcrypt/internal/kit"
+	"github.com/kmou424/sfcrypt/v1/sfcrypt"
+	"github.com/kmou424/sfcrypt/v1/sfcrypt/kit"
 	"os"
 )
 
@@ -20,15 +21,15 @@ var (
 	version   bool
 )
 
-func init() {
+func Parse() {
 	flag.StringVar(&Input, "i", "", "specify input file")
 	flag.StringVar(&Input, "input", "", "specify input file (same as -i)")
 
 	flag.StringVar(&Output, "o", "", "specify output file")
 	flag.StringVar(&Output, "output", "", "specify output file (same as -o)")
 
-	flag.IntVar(&Threads, "t", consts.DefaultThreads, "specify threads to encrypt/decrypt file")
-	flag.IntVar(&Threads, "threads", consts.DefaultThreads, "specify threads to encrypt/decrypt file (same as -t)")
+	flag.IntVar(&Threads, "t", sfcrypt.DefaultThreads, "specify threads to encrypt/decrypt file")
+	flag.IntVar(&Threads, "threads", sfcrypt.DefaultThreads, "specify threads to encrypt/decrypt file (same as -t)")
 
 	flag.StringVar(&Password, "p", "", "set password")
 	flag.StringVar(&Password, "password", "", "set password (same as -p)")

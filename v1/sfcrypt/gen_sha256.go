@@ -1,4 +1,4 @@
-package generator
+package sfcrypt
 
 import (
 	"crypto/sha256"

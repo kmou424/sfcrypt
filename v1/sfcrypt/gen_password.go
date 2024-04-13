@@ -1,4 +1,4 @@
-package generator
+package sfcrypt
 
 import (
 	"fmt"
@@ -6,23 +6,23 @@ import (
 	"gonum.org/v1/gonum/mathext/prng"
 )
 
-type PasswordFactory struct {
+type PasswordGenerator struct {
 	password string
 	saltSrc  string
 }
 
-func NewPasswordFactory(password string, salt string) *PasswordFactory {
-	return &PasswordFactory{password, salt}
+func NewPasswordFactory(password string, salt string) *PasswordGenerator {
+	return &PasswordGenerator{password, salt}
 }
 
-func (p *PasswordFactory) GenerateHash() string {
+func (p *PasswordGenerator) GenerateHash() string {
 	if goutil.IsEmpty(p.saltSrc) {
 		return SHA256(p.password)
 	}
 	return SHA256(p.password + p.generateSalt())
 }
 
-func (p *PasswordFactory) generateSalt() (salt string) {
+func (p *PasswordGenerator) generateSalt() (salt string) {
 	var saltRuneList [][]rune
 	var saltCharLength int
 
@@ -46,7 +46,7 @@ func (p *PasswordFactory) generateSalt() (salt string) {
 	return
 }
 
-func (p *PasswordFactory) getPRNG(seed int) []rune {
+func (p *PasswordGenerator) getPRNG(seed int) []rune {
 	prnger := prng.NewMT19937_64()
 	prnger.Seed(uint64(seed))
 	var ret []rune
