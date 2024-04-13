@@ -4,7 +4,7 @@ import "fmt"
 
 var (
 	MajorVersion = 1
-	MinorVersion = 0
+	MinorVersion = 1
 	PatchVersion = 0
 )
 
