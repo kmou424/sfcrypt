@@ -25,22 +25,22 @@ func (p *PasswordFactory) GenerateHash() string {
 
 func (p *PasswordFactory) generateSalt() (salt string) {
 	var saltRuneList [][]rune
-	var slatCharLength int
+	var saltCharLength int
 
 	saltHash := utils.SHA256(p.saltSrc)
 	runeListLength := len(saltHash)
 
 	for _, ch := range saltHash {
 		prngRunes := p.getPRNG(int(ch))
-		slatCharLength += len(prngRunes)
+		saltCharLength += len(prngRunes)
 		saltRuneList = append(saltRuneList, prngRunes)
 	}
-	for slatCharLength > 0 {
+	for saltCharLength > 0 {
 		for i := 0; i < runeListLength; i++ {
 			if len(saltRuneList[i]) > 0 {
 				salt += string(saltRuneList[i][0])
 				saltRuneList[i] = saltRuneList[i][1:]
-				slatCharLength--
+				saltCharLength--
 			}
 		}
 	}
