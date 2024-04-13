@@ -1,9 +1,8 @@
-package factory
+package generator
 
 import (
 	"fmt"
 	"github.com/gookit/goutil"
-	"github.com/kmou424/sfcrypt/internal/utils"
 	"gonum.org/v1/gonum/mathext/prng"
 )
 
@@ -18,16 +17,16 @@ func NewPasswordFactory(password string, salt string) *PasswordFactory {
 
 func (p *PasswordFactory) GenerateHash() string {
 	if goutil.IsEmpty(p.saltSrc) {
-		return utils.SHA256(p.password)
+		return SHA256(p.password)
 	}
-	return utils.SHA256(p.password + p.generateSalt())
+	return SHA256(p.password + p.generateSalt())
 }
 
 func (p *PasswordFactory) generateSalt() (salt string) {
 	var saltRuneList [][]rune
 	var saltCharLength int
 
-	saltHash := utils.SHA256(p.saltSrc)
+	saltHash := SHA256(p.saltSrc)
 	runeListLength := len(saltHash)
 
 	for _, ch := range saltHash {
@@ -51,7 +50,7 @@ func (p *PasswordFactory) getPRNG(seed int) []rune {
 	prnger := prng.NewMT19937_64()
 	prnger.Seed(uint64(seed))
 	var ret []rune
-	for _, c := range utils.SHA256(fmt.Sprintf("%d", prnger.Uint64())) {
+	for _, c := range SHA256(fmt.Sprintf("%d", prnger.Uint64())) {
 		ret = append(ret, c)
 	}
 	return ret

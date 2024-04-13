@@ -1,17 +1,15 @@
-package core
+package sfcrypt
 
 import (
 	"github.com/gookit/goutil/fsutil"
-	"github.com/hanakogo/exceptiongo"
-	"github.com/kmou424/sfcrypt/internal/types"
-	"github.com/kmou424/sfcrypt/internal/utils"
+	"github.com/kmou424/sfcrypt/internal/kit"
 	"io"
 	"os"
 	"runtime"
 	"sync"
 )
 
-func SFCryptFile(input string, output string, blockSize int, password string, threads int) {
+func doSFCrypt(input string, output string, blockSize int, password string, threads int) {
 	var blockNum int
 	var wg sync.WaitGroup
 	var eof bool
@@ -22,7 +20,9 @@ func SFCryptFile(input string, output string, blockSize int, password string, th
 	)
 
 	inputFile, err := fsutil.OpenReadFile(input)
-	exceptiongo.QuickThrow[types.IOException](err)
+	if err != nil {
+		kit.Panic(err.Error())
+	}
 	defer inputFile.Close()
 
 	if input == output {
@@ -30,7 +30,9 @@ func SFCryptFile(input string, output string, blockSize int, password string, th
 	} else {
 		outputFile, err = fsutil.QuickOpenFile(output, 0755)
 	}
-	exceptiongo.QuickThrow[types.IOException](err)
+	if err != nil {
+		kit.Panic(err.Error())
+	}
 	defer outputFile.Close()
 
 	for !eof {
@@ -47,18 +49,18 @@ func SFCryptFile(input string, output string, blockSize int, password string, th
 			buf := make([]byte, blockSize)
 			length, err := inputFile.ReadAt(buf, int64(offset))
 			if err != nil && err != io.EOF {
-				exceptiongo.QuickThrow[types.IOException](err)
+				kit.Panic(err.Error())
 			}
 			if err == io.EOF {
 				eof = true
 			}
 
 			var bufCrypt []byte
-			bufCrypt = utils.XORCryptBytes(buf, length, password)
+			bufCrypt = kit.XORCryptBytes(buf, length, password)
 
 			_, err = outputFile.WriteAt(bufCrypt[:length], int64(offset))
 			if err != nil {
-				exceptiongo.QuickThrow[types.IOException](err)
+				kit.Panic(err.Error())
 			}
 		}(blockNum)
 

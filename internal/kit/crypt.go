@@ -1,4 +1,4 @@
-package utils
+package kit
 
 import (
 	"math"
