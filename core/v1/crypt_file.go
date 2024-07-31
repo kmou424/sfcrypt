@@ -1,10 +1,8 @@
-package sfcrypt
+package v1
 
 import (
 	"context"
-	_ "context"
-	"github.com/gookit/goutil/fsutil"
-	"github.com/kmou424/sfcrypt/v1/sfcrypt/kit"
+	. "github.com/kmou424/sfcrypt/app/common"
 	"io"
 	"os"
 	"sync"
@@ -18,19 +16,15 @@ func doSFCryptBak(input string, output string, blockSize int, password string, t
 		outputFile *os.File
 	)
 
-	inputFile, err := fsutil.OpenReadFile(input)
+	inputFile, err := os.OpenFile(output, os.O_RDONLY, 0644)
 	if err != nil {
-		kit.Panic(err.Error())
+		Panic(err.Error())
 	}
 	defer inputFile.Close()
 
-	if input == output {
-		outputFile, err = fsutil.OpenFile(output, fsutil.FsCWFlags, 0755)
-	} else {
-		outputFile, err = fsutil.QuickOpenFile(output, 0755)
-	}
+	outputFile, err = os.OpenFile(output, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		kit.Panic(err.Error())
+		Panic(err.Error())
 	}
 	defer outputFile.Close()
 
@@ -46,7 +40,7 @@ func doSFCryptBak(input string, output string, blockSize int, password string, t
 			buf := make([]byte, blockSize)
 			length, err := inputFile.ReadAt(buf, int64(offset))
 			if err != nil && err != io.EOF {
-				kit.Panic(err.Error())
+				Panic(err.Error())
 			}
 			if err == io.EOF {
 				eof = true
@@ -56,7 +50,7 @@ func doSFCryptBak(input string, output string, blockSize int, password string, t
 
 			_, err = outputFile.WriteAt(buf[:length], int64(offset))
 			if err != nil {
-				kit.Panic(err.Error())
+				Panic(err.Error())
 			}
 		}(block)
 	}
@@ -96,19 +90,16 @@ type fileCrypt struct {
 
 func (c *fileCrypt) open() {
 	var err error
-	c.inputFile, err = fsutil.OpenReadFile(c.input)
+	c.inputFile, err = os.OpenFile(c.output, os.O_RDONLY, 0644)
 	if err != nil {
-		kit.Panic(err.Error())
+		Panic(err.Error())
 	}
+	defer c.inputFile.Close()
 
-	if c.input == c.output {
-		c.outputFile, err = fsutil.OpenFile(c.output, fsutil.FsCWFlags, 0755)
-	} else {
-		c.outputFile, err = fsutil.QuickOpenFile(c.output, 0755)
-	}
+	c.outputFile, err = os.OpenFile(c.output, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		_ = c.inputFile.Close()
-		kit.Panic(err.Error())
+		Panic(err.Error())
 	}
 }
 
@@ -134,7 +125,7 @@ func (c *fileCrypt) start() {
 		buf := make([]byte, c.blockSize)
 		length, err := c.inputFile.ReadAt(buf, offset)
 		if err != nil && err != io.EOF {
-			kit.Panic(err.Error())
+			Panic(err.Error())
 		}
 		callback <- err != io.EOF
 
@@ -142,7 +133,7 @@ func (c *fileCrypt) start() {
 
 		_, err = c.outputFile.WriteAt(buf[:length], offset)
 		if err != nil {
-			kit.Panic(err.Error())
+			Panic(err.Error())
 		}
 	}
 

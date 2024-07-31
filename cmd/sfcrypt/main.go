@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	. "github.com/kmou424/sfcrypt/app/common"
 	"github.com/kmou424/sfcrypt/cmd/cli"
-	"github.com/kmou424/sfcrypt/v1/sfcrypt"
+	. "github.com/kmou424/sfcrypt/core/v1"
 	"os"
 	"time"
 )
@@ -11,7 +11,7 @@ import (
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("error:", err)
+			Logger.Info("error:", err)
 			os.Exit(1)
 		}
 	}()
@@ -21,10 +21,10 @@ func main() {
 }
 
 func start() {
-	if cli.Threads > sfcrypt.MaxThreads {
-		cli.Threads = sfcrypt.MaxThreads
-	} else if cli.Threads < 0 {
-		cli.Threads = sfcrypt.DefaultThreads
+	if cli.Routines > MaxRoutines {
+		cli.Routines = MaxRoutines
+	} else if cli.Routines < 0 {
+		cli.Routines = DefaultRoutines
 	}
 
 	if cli.Overwrite {
@@ -32,13 +32,13 @@ func start() {
 	}
 
 	start := time.Now()
-	sfCrypt := sfcrypt.NewSFCrypt(cli.Password, cli.Salt)
-	sfCrypt.SetThreads(cli.Threads)
+	sfCrypt := NewSFCrypt(cli.Password, cli.Salt)
+	sfCrypt.SetThreads(cli.Routines)
 	err := sfCrypt.CryptFile(cli.Input, cli.Output)
 	if err != nil {
 		panic(err)
 	}
 	end := time.Now()
 
-	fmt.Println("Encrypt/Decrypt took: ", end.Sub(start))
+	Logger.Info("Encrypt/Decrypt took: ", end.Sub(start))
 }

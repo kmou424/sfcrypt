@@ -2,23 +2,21 @@ package cli
 
 import (
 	"flag"
-	"fmt"
-	"github.com/gookit/goutil/fsutil"
-	"github.com/gookit/goutil/strutil"
-	"github.com/kmou424/sfcrypt/internal/consts"
-	"github.com/kmou424/sfcrypt/v1/sfcrypt"
-	"github.com/kmou424/sfcrypt/v1/sfcrypt/kit"
+	. "github.com/kmou424/sfcrypt/app/common"
+	"github.com/kmou424/sfcrypt/app/fs"
+	"github.com/kmou424/sfcrypt/app/version"
+	. "github.com/kmou424/sfcrypt/core/v1"
 	"os"
 )
 
 var (
 	Input     string
 	Output    string
-	Threads   int
+	Routines  int
 	Overwrite bool
 	Password  string
 	Salt      string
-	version   bool
+	Version   bool
 )
 
 func Parse() {
@@ -28,8 +26,8 @@ func Parse() {
 	flag.StringVar(&Output, "o", "", "specify output file")
 	flag.StringVar(&Output, "output", "", "specify output file (same as -o)")
 
-	flag.IntVar(&Threads, "t", sfcrypt.DefaultThreads, "specify threads to encrypt/decrypt file")
-	flag.IntVar(&Threads, "threads", sfcrypt.DefaultThreads, "specify threads to encrypt/decrypt file (same as -t)")
+	flag.IntVar(&Routines, "r", DefaultRoutines, "specify goroutines to encrypt/decrypt file")
+	flag.IntVar(&Routines, "routines", DefaultRoutines, "specify goroutines to encrypt/decrypt file (same as -t)")
 
 	flag.StringVar(&Password, "p", "", "set password")
 	flag.StringVar(&Password, "password", "", "set password (same as -p)")
@@ -39,8 +37,8 @@ func Parse() {
 
 	flag.BoolVar(&Overwrite, "overwrite", false, "overwrite input file (will ignore if output file is specified)")
 
-	flag.BoolVar(&version, "v", false, "show version")
-	flag.BoolVar(&version, "version", false, "show version (same as -v)")
+	flag.BoolVar(&Version, "v", false, "show version")
+	flag.BoolVar(&Version, "version", false, "show version (same as -v)")
 
 	flag.Parse()
 
@@ -53,36 +51,36 @@ func argCheck() {
 		os.Exit(0)
 	}
 
-	if version {
-		fmt.Printf("sfcrypt %s by kmou424\n", consts.GetVersion())
+	if Version {
+		Logger.Info("sfcrypt %s by kmou424\n", version.GetVersion())
 		os.Exit(0)
 	}
 
-	if strutil.IsEmpty(Input) {
-		kit.Panic("input file is required")
+	if len(Input) == 0 {
+		Panic("input file is required")
 	}
 
-	if strutil.IsEmpty(Output) && !Overwrite {
-		kit.Panic("output file is required")
+	if len(Output) == 0 && !Overwrite {
+		Panic("output file is required")
 	}
 
 	if Overwrite {
-		fmt.Println("NOTICE: overwrite is enabled, sfcrypt will write to input file and ignore output file if specified")
+		Logger.Info("NOTICE: overwrite is enabled, sfcrypt will write to input file and ignore output file if specified")
 	}
 
-	if strutil.IsEmpty(Password) {
-		kit.Panic("password is required")
+	if len(Password) == 0 {
+		Panic("password is required")
 	}
 
-	if strutil.IsEmpty(Salt) {
-		fmt.Println("WARN: we suggest you to use a salt to increase the security of your password")
+	if len(Salt) == 0 {
+		Logger.Info("WARN: we suggest you to use a salt to increase the security of your password")
 	}
 
-	if !fsutil.FileExists(Input) {
-		kit.Panic("input file %s not found", Input)
+	if !fs.FileExists(Input) {
+		Panic("input file %s not found", Input)
 	}
 
-	if fsutil.FileExists(Output) {
-		kit.Panic("output file %s is already existed", Output)
+	if fs.FileExists(Output) {
+		Panic("output file %s is already existed", Output)
 	}
 }

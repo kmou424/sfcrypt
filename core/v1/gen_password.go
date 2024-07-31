@@ -1,8 +1,7 @@
-package sfcrypt
+package v1
 
 import (
 	"fmt"
-	"github.com/gookit/goutil"
 	"gonum.org/v1/gonum/mathext/prng"
 )
 
@@ -16,7 +15,7 @@ func NewPasswordFactory(password string, salt string) *PasswordGenerator {
 }
 
 func (p *PasswordGenerator) GenerateHash() string {
-	if goutil.IsEmpty(p.saltSrc) {
+	if len(p.saltSrc) == 0 {
 		return SHA256(p.password)
 	}
 	return SHA256(p.password + p.generateSalt())

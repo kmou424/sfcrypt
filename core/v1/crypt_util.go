@@ -1,4 +1,4 @@
-package sfcrypt
+package v1
 
 import (
 	"math"

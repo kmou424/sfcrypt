@@ -1,4 +1,8 @@
-package sfcrypt
+package v1
+
+import (
+	"github.com/kmou424/sfcrypt/app/common"
+)
 
 type SFCrypt struct {
 	password   string
@@ -9,16 +13,16 @@ type SFCrypt struct {
 func NewSFCrypt(password string, salt string) *SFCrypt {
 	return &SFCrypt{
 		password:   NewPasswordFactory(password, salt).GenerateHash(),
-		threads:    DefaultThreads,
-		blockRatio: BlockRatio,
+		threads:    common.DefaultRoutines,
+		blockRatio: common.BlockRatio,
 	}
 }
 
 func (s *SFCrypt) SetThreads(threads int) *SFCrypt {
-	if threads > MaxThreads {
-		threads = MaxThreads
+	if threads > common.MaxRoutines {
+		threads = common.MaxRoutines
 	} else if threads < 0 {
-		threads = DefaultThreads
+		threads = common.DefaultRoutines
 	}
 	s.threads = threads
 	return s
