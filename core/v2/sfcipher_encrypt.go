@@ -2,13 +2,19 @@ package v2
 
 import (
 	"bytes"
+	"github.com/kmou424/ero"
 	. "github.com/kmou424/sfcrypt/app/common"
 	"io"
 )
 
 func (c *SFCipher) encryptPreprocess() (err error) {
 	// all preprocess errors can be force ignored on encrypting
-	defer c.ignorePreprocessErrorsOnForceEnabled(&err)
+	defer func() {
+		if err != nil && c.opt.Force {
+			Logger.Warn(ero.LineTrace(err))
+			err = nil
+		}
+	}()
 
 	header := &SFHeader{}
 	_, err = header.ReadFromFile(c.fIn, false)
@@ -40,12 +46,11 @@ func (c *SFCipher) encryptPreprocess() (err error) {
 		return nil
 	}
 
-	err = isHeaderVersionMatched(header)
-	if err != nil {
-		return err
+	if err := isHeaderVersionMatched(header); err != nil {
+		return ero.Wrap(err, "input file is already encrypted")
 	}
 
-	return Errorf("input file is already encrypted")
+	return nil
 }
 
 func (c *SFCipher) encryptDoWithOffset(offset int64) (eof bool, err error) {

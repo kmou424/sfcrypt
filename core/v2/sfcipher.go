@@ -112,15 +112,3 @@ func (c *SFCipher) Decrypt() error {
 	}
 	return nil
 }
-
-func (c *SFCipher) ignorePreprocessErrorsOnForceEnabled(err *error) {
-	if *err != nil {
-		if !c.opt.Force {
-			*err = ErrorfCaused("preprocess error", *err)
-			return
-		}
-		// if force enabled, only output the warning and continue
-		Logger.Warn((*err).Error())
-		*err = nil
-	}
-}

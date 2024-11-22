@@ -2,6 +2,7 @@ package v2
 
 import (
 	"bytes"
+	"github.com/kmou424/ero"
 	. "github.com/kmou424/sfcrypt/app/common"
 	"io"
 )
@@ -23,12 +24,10 @@ func (c *SFCipher) decryptPreprocess() (err error) {
 		return Errorf("file is not a sfcrypt encrypted file")
 	}
 
-	// only version mismatch error can be force ignored on decrypting
-	defer c.ignorePreprocessErrorsOnForceEnabled(&err)
-
-	err = isHeaderVersionMatched(header)
-	if err != nil {
-		return err
+	if err := isHeaderVersionMatched(header); err != nil {
+		if !c.opt.Force {
+			return ero.Wrap(err, "header version mismatch")
+		}
 	}
 
 	return nil
