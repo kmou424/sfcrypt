@@ -2,11 +2,16 @@ package main
 
 import (
 	. "github.com/kmou424/sfcrypt/app/common"
-	"github.com/kmou424/sfcrypt/cmd/cli"
+	"github.com/kmou424/sfcrypt/app/version"
+	"github.com/kmou424/sfcrypt/cmd/v1/cli"
 	. "github.com/kmou424/sfcrypt/core/v1"
 	"os"
 	"time"
 )
+
+func init() {
+	version.InitVersion(1, 1, 0)
+}
 
 func main() {
 	defer func() {

@@ -6,10 +6,23 @@ import (
 )
 
 var (
-	Major = 1
-	Minor = 1
-	Patch = 0
+	major       int16
+	minor       int16
+	patch       int16
+	initialized bool
 )
+
+func InitVersion(m, n, p int16) {
+	if initialized {
+		return
+	}
+	defer func() {
+		initialized = true
+	}()
+	major = m
+	minor = n
+	patch = p
+}
 
 type Flag int
 
@@ -20,7 +33,7 @@ const (
 )
 
 func GetVersion() string {
-	return fmt.Sprintf("%d.%d.%d", Major, Minor, Patch)
+	return fmt.Sprintf("%d.%d.%d", major, minor, patch)
 }
 
 func Equal(version string, flags Flag) (bool, error) {
