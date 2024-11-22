@@ -2,3 +2,5 @@
 
 *.mp4
 *.exe
+
+app/buildinfo/*.go
