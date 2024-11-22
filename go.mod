@@ -1,6 +1,6 @@
 module github.com/kmou424/sfcrypt
 
-go 1.21.1
+go 1.23.2
 
 require (
 	github.com/kmou424/ero v0.0.0-20241122080542-c413a6fb1d82
