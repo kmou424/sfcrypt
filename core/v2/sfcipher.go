@@ -1,10 +1,11 @@
 package v2
 
 import (
-	. "github.com/kmou424/sfcrypt/app/common"
-	"github.com/kmou424/sfcrypt/core/cipher"
 	"os"
 	"sync"
+
+	. "github.com/kmou424/sfcrypt/app/common"
+	"github.com/kmou424/sfcrypt/core/cipher"
 )
 
 type SFCipher struct {
@@ -22,7 +23,7 @@ type SFCipher struct {
 func (c *SFCipher) Init(opt *cipher.FileCipherOptions) {
 	c.opt = opt
 	c.maxRoutineCtrl = make(chan any, MaxRoutines)
-	c.blkSize = BufferSize * BlockRatio
+	c.blkSize = calcBlockSize()
 }
 
 func (c *SFCipher) processFileInParallel(preprocess func() error, doWithOffset func(int64) (bool, error)) (err error) {
@@ -111,4 +112,15 @@ func (c *SFCipher) Decrypt() error {
 		return ErrorfCaused("decryption error", err)
 	}
 	return nil
+}
+
+func calcBlockSize() (blkSize int64) {
+	blkSize = BufferSize * BlockRatio
+
+	if blkSize%pbkdf2KeySize != 0 {
+		// adjust block size to be the least common multiple of pbkdf2KeySize and BufferSize
+		blkSize = blkSize * pbkdf2KeySize / GCD(blkSize, pbkdf2KeySize)
+	}
+
+	return
 }
