@@ -14,14 +14,16 @@ import (
 //go:embed version.go.tmpl
 var embedVersion embed.FS
 
-func initVersion() {
-	version.InitVersion(2, 0, 0)
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Show version and build information",
+	Long:  `Show version and build information`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(genVersion())
+	},
 }
 
-var versionAndBuildInfo = func() string {
-	defer HandleEro()
-	initVersion()
-
+var genVersion = func() string {
 	tmplInfo := map[string]any{
 		"version":     version.GetVersion(),
 		"buildDate":   buildinfo.BuildDate,
@@ -41,8 +43,4 @@ var versionAndBuildInfo = func() string {
 		panic(ero.Wrap(err, "failed to execute version template"))
 	}
 	return buf.String()
-}()
-
-var versionCmdFunc = func(cmd *cobra.Command, args []string) {
-	fmt.Println(versionAndBuildInfo)
 }

@@ -10,13 +10,6 @@ var rootCmd = &cobra.Command{
 	Long:  `Simple file cryptor`,
 }
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Show version and build information",
-	Long:  `Show version and build information`,
-	Run:   versionCmdFunc,
-}
-
 func init() {
 	rootCmd.AddCommand(versionCmd)
 }
