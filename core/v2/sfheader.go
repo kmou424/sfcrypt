@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/gob"
 	"errors"
-	. "github.com/kmou424/sfcrypt/app/common"
+	"github.com/kmou424/ero"
 	"github.com/kmou424/sfcrypt/app/version"
 	"io"
 	"os"
@@ -35,7 +35,7 @@ var MaxHeaderSize = func() int {
 	header := &SFHeader{}
 	bytes, err := header.Bytes()
 	if err != nil {
-		panic(ErrorfCaused("failed to calculate max header size", err).Error())
+		panic(ero.Wrap(err, "failed to calculate max header size").Error())
 	}
 	// empty gob size aka reserved for no field size
 	baseSize := len(bytes)
@@ -84,7 +84,7 @@ func (f *SFHeader) Parse(buf []byte) error {
 	dec := gob.NewDecoder(bytes.NewReader(buf))
 	err := dec.Decode(f)
 	if err != nil {
-		return Errorf("parse header error: %s", err.Error())
+		return ero.Newf("parse header error: %s", err.Error())
 	}
 	return nil
 }
@@ -93,13 +93,13 @@ func (f *SFHeader) ReadFromFile(file *os.File, fallbackOnFailed bool) (n int, er
 	if fallbackOnFailed {
 		offset, innerErr := file.Seek(0, io.SeekCurrent)
 		if innerErr != nil {
-			return 0, ErrorfCaused("seek failed", innerErr)
+			return 0, ero.Wrap(innerErr, "seek failed")
 		}
 		defer func() {
 			if err != nil {
 				_, innerErr = file.Seek(offset, io.SeekStart)
 				if innerErr != nil {
-					err = errors.Join(err, ErrorfCaused("seek failed", innerErr))
+					err = errors.Join(err, ero.Wrap(innerErr, "seek failed"))
 				}
 			}
 		}()
@@ -108,7 +108,7 @@ func (f *SFHeader) ReadFromFile(file *os.File, fallbackOnFailed bool) (n int, er
 	lengthBuf := make([]byte, 4)
 	n, err = file.Read(lengthBuf)
 	if n != 4 {
-		return n, Errorf("can't read header length")
+		return n, ero.New("can't read header length")
 	}
 	if err != nil {
 		return 0, err
@@ -118,13 +118,13 @@ func (f *SFHeader) ReadFromFile(file *os.File, fallbackOnFailed bool) (n int, er
 
 	// check max length to avoid too large header
 	if length > MaxHeaderSize {
-		return 0, Errorf("header size %d exceeds max allowed size %d", length, MaxHeaderSize)
+		return 0, ero.Newf("header size %d exceeds max allowed size %d", length, MaxHeaderSize)
 	}
 
 	buf := make([]byte, length)
 	n, err = file.Read(buf)
 	if n != length {
-		return n, Errorf("requires length %d bytes, but actually read %d", length, n)
+		return n, ero.Newf("requires length %d bytes, but actually read %d", length, n)
 	}
 	if err != nil {
 		return 0, err

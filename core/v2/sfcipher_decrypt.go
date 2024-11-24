@@ -3,7 +3,6 @@ package v2
 import (
 	"bytes"
 	"github.com/kmou424/ero"
-	. "github.com/kmou424/sfcrypt/app/common"
 	"io"
 )
 
@@ -21,7 +20,7 @@ func (c *SFCipher) decryptPreprocess() (err error) {
 	}()
 
 	if !bytes.Equal(DefHeader.Magic[:], header.Magic[:]) {
-		return Errorf("file is not a sfcrypt encrypted file")
+		return ero.Newf("file is not a sfcrypt encrypted file")
 	}
 
 	if err := isHeaderVersionMatched(header); err != nil {
@@ -38,7 +37,7 @@ func (c *SFCipher) decryptDoWithOffset(offset int64) (eof bool, err error) {
 
 	length, err := c.fIn.ReadAt(buf, offset+c.headerSize)
 	if err != nil && err != io.EOF {
-		err = ErrorfCaused("unexpected error while reading file", err)
+		err = ero.Wrap(err, "unexpected error while reading file")
 		return
 	}
 	if err == io.EOF {
@@ -47,14 +46,14 @@ func (c *SFCipher) decryptDoWithOffset(offset int64) (eof bool, err error) {
 
 	out, err := c.opt.Cipher.Decrypt(buf)
 	if err != nil {
-		err = Errorf("process bytes %d - %d error: %v", offset, offset+int64(length), err)
+		err = ero.Newf("process bytes %d - %d error: %v", offset, offset+int64(length), err)
 		return
 	}
 	copy(buf, out)
 
 	_, err = c.fOut.WriteAt(buf[:length], offset)
 	if err != nil {
-		err = ErrorfCaused("unexpected error while writing file", err)
+		err = ero.Wrap(err, "unexpected error while writing file")
 		return
 	}
 

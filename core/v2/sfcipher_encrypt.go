@@ -24,7 +24,7 @@ func (c *SFCipher) encryptPreprocess() (err error) {
 		// check fallback error here to avoid missing hit
 		_, err := c.fIn.Seek(0, io.SeekStart)
 		if err != nil {
-			return ErrorfCaused("unable to seek file header: %v", err)
+			return ero.Wrap(err, "unable to seek file header: %v")
 		}
 		return nil
 	}
@@ -35,7 +35,7 @@ func (c *SFCipher) encryptPreprocess() (err error) {
 			var n int
 			n, err = DefHeader.WriteToFile(c.fOut)
 			if err != nil {
-				err = ErrorfCaused("write file header error", err)
+				err = ero.Wrap(err, "write file header error")
 			}
 			c.headerSize = int64(n)
 		}
@@ -57,7 +57,7 @@ func (c *SFCipher) encryptDoWithOffset(offset int64) (eof bool, err error) {
 	buf := make([]byte, c.blkSize)
 	length, err := c.fIn.ReadAt(buf, offset)
 	if err != nil && err != io.EOF {
-		err = ErrorfCaused("unexpected error while reading file", err)
+		err = ero.Wrap(err, "unexpected error while reading file")
 		return
 	}
 	if err == io.EOF {
@@ -66,14 +66,14 @@ func (c *SFCipher) encryptDoWithOffset(offset int64) (eof bool, err error) {
 
 	out, err := c.opt.Cipher.Encrypt(buf)
 	if err != nil {
-		err = Errorf("process bytes %d - %d error: %v", offset, offset+int64(length), err)
+		err = ero.Newf("process bytes %d - %d error: %v", offset, offset+int64(length), err)
 		return
 	}
 	copy(buf, out)
 
 	_, err = c.fOut.WriteAt(buf[:length], offset+c.headerSize)
 	if err != nil {
-		err = ErrorfCaused("unexpected error while writing file", err)
+		err = ero.Wrap(err, "unexpected error while writing file")
 		return
 	}
 	return

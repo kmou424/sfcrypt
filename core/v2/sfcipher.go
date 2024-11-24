@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"github.com/kmou424/ero"
 	"os"
 	"sync"
 
@@ -98,7 +99,7 @@ func (c *SFCipher) Encrypt() error {
 		c.encryptDoWithOffset,
 	)
 	if err != nil {
-		return ErrorfCaused("encryption error", err)
+		return ero.Wrap(err, "encryption error")
 	}
 	return nil
 }
@@ -109,7 +110,7 @@ func (c *SFCipher) Decrypt() error {
 		c.decryptDoWithOffset,
 	)
 	if err != nil {
-		return ErrorfCaused("decryption error", err)
+		return ero.Wrap(err, "decryption error")
 	}
 	return nil
 }
