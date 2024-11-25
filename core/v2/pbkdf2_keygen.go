@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	pbkdf2Iteration = 1000000
+	pbkdf2Iteration = 200000
 	pbkdf2KeySize   = 512
 )
 
