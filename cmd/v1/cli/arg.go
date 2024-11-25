@@ -3,7 +3,6 @@ package cli
 import (
 	"flag"
 	. "github.com/kmou424/sfcrypt/app/common"
-	"github.com/kmou424/sfcrypt/app/fs"
 	"github.com/kmou424/sfcrypt/app/version"
 	. "github.com/kmou424/sfcrypt/core/v1"
 	"os"
@@ -76,11 +75,11 @@ func argCheck() {
 		Logger.Info("WARN: we suggest you to use a salt to increase the security of your password")
 	}
 
-	if !fs.FileExists(Input) {
+	if !FileExists(Input) {
 		Panic("input file %s not found", Input)
 	}
 
-	if fs.FileExists(Output) {
+	if FileExists(Output) {
 		Panic("output file %s is already existed", Output)
 	}
 }

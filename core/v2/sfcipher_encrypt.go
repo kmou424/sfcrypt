@@ -42,18 +42,14 @@ func (c *SFCipher) encryptPreprocess() (err error) {
 	}()
 
 	// not encrypted file, skip
-	if !bytes.Equal(DefHeader.Magic[:], header.Magic[:]) {
-		return nil
-	}
-
-	if err := isHeaderVersionMatched(header); err != nil {
+	if bytes.Equal(DefHeader.Magic[:], header.Magic[:]) {
 		return ero.Wrap(err, "input file is already encrypted")
 	}
 
 	return nil
 }
 
-func (c *SFCipher) encryptDoWithOffset(offset int64) (eof bool, err error) {
+func (c *SFCipher) encryptFragment(offset int64) (eof bool, err error) {
 	buf := make([]byte, c.blkSize)
 	length, err := c.fIn.ReadAt(buf, offset)
 	if err != nil && err != io.EOF {

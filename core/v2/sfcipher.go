@@ -27,9 +27,14 @@ func (c *SFCipher) Init(opt *cipher.FileCipherOptions) {
 	c.blkSize = calcBlockSize()
 }
 
-func (c *SFCipher) processFileInParallel(preprocess func() error, doWithOffset func(int64) (bool, error)) (err error) {
+type (
+	preprocessFunc      func() error
+	resolveFragmentFunc func(int64) (bool, error)
+)
+
+func (c *SFCipher) doFileCiphering(preprocess preprocessFunc, resolveFragment resolveFragmentFunc) (err error) {
 	if c.opt.Input == c.opt.Output {
-		return Errorf("input file is same as output file")
+		return ero.New("input file is same as output file")
 	}
 
 	c.fIn, err = os.OpenFile(c.opt.Input, os.O_RDONLY, 0644)
@@ -37,20 +42,17 @@ func (c *SFCipher) processFileInParallel(preprocess func() error, doWithOffset f
 		return err
 	}
 	defer func() { _ = c.fIn.Close() }()
-	// todo: check exists
-	// todo: try create file first
+
+	if _, err = os.Stat(c.opt.Output); err == nil {
+		return ero.Newf("output file already exists: %s", c.opt.Output)
+	}
+
 	c.fOut, err = os.OpenFile(c.opt.Output, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		_ = c.fOut.Close()
-		// cleanup broken output file
-		// todo: file can be deleted when it was created by ourselves
-		if err != nil {
-			_ = os.Remove(c.opt.Output)
-			return
-		}
 	}()
 
 	if preprocess != nil {
@@ -65,13 +67,13 @@ func (c *SFCipher) processFileInParallel(preprocess func() error, doWithOffset f
 		eof       = false
 	)
 
-	syncDoAlignedOffset := func(offset int64) {
+	syncResolveFragment := func(offset int64) {
 		defer func() {
 			<-c.maxRoutineCtrl
 			c.wg.Done()
 		}()
 
-		isEof, err := doWithOffset(offset)
+		isEof, err := resolveFragment(offset)
 		if err != nil {
 			eof = true
 			Logger.Error(err.Error())
@@ -85,7 +87,7 @@ func (c *SFCipher) processFileInParallel(preprocess func() error, doWithOffset f
 	for ; !eof; blk++ {
 		c.wg.Add(1)
 		c.maxRoutineCtrl <- nil
-		go syncDoAlignedOffset(blk * c.blkSize)
+		go syncResolveFragment(blk * c.blkSize)
 	}
 
 	c.wg.Wait()
@@ -94,9 +96,9 @@ func (c *SFCipher) processFileInParallel(preprocess func() error, doWithOffset f
 }
 
 func (c *SFCipher) Encrypt() error {
-	err := c.processFileInParallel(
+	err := c.doFileCiphering(
 		c.encryptPreprocess,
-		c.encryptDoWithOffset,
+		c.encryptFragment,
 	)
 	if err != nil {
 		return ero.Wrap(err, "encryption error")
@@ -105,9 +107,9 @@ func (c *SFCipher) Encrypt() error {
 }
 
 func (c *SFCipher) Decrypt() error {
-	err := c.processFileInParallel(
+	err := c.doFileCiphering(
 		c.decryptPreprocess,
-		c.decryptDoWithOffset,
+		c.decryptFragment,
 	)
 	if err != nil {
 		return ero.Wrap(err, "decryption error")

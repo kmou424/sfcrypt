@@ -32,7 +32,7 @@ func (c *SFCipher) decryptPreprocess() (err error) {
 	return nil
 }
 
-func (c *SFCipher) decryptDoWithOffset(offset int64) (eof bool, err error) {
+func (c *SFCipher) decryptFragment(offset int64) (eof bool, err error) {
 	buf := make([]byte, c.blkSize)
 
 	length, err := c.fIn.ReadAt(buf, offset+c.headerSize)
