@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/gob"
-	"errors"
 	"github.com/kmou424/ero"
 	"github.com/kmou424/sfcrypt/app/version"
 	"io"
@@ -99,7 +98,7 @@ func (f *SFHeader) ReadFromFile(file *os.File, fallbackOnFailed bool) (n int, er
 			if err != nil {
 				_, innerErr = file.Seek(offset, io.SeekStart)
 				if innerErr != nil {
-					err = errors.Join(err, ero.Wrap(innerErr, "seek failed"))
+					err = ero.Wrap(err, ero.Wrap(innerErr, "seek failed").Error())
 				}
 			}
 		}()

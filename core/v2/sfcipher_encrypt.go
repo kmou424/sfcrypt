@@ -17,17 +17,7 @@ func (c *SFCipher) encryptPreprocess() (err error) {
 	}()
 
 	header := &SFHeader{}
-	_, err = header.ReadFromFile(c.fIn, false)
-	// can't parse file header, not encrypted file
-	if err != nil {
-		// fallback offset to ensure read from start next time
-		// check fallback error here to avoid missing hit
-		_, err := c.fIn.Seek(0, io.SeekStart)
-		if err != nil {
-			return ero.Wrap(err, "unable to seek file header: %v")
-		}
-		return nil
-	}
+	_, _ = header.ReadFromFile(c.fIn, true)
 
 	defer func() {
 		if err == nil || (err != nil && c.opt.Force) {
@@ -43,7 +33,7 @@ func (c *SFCipher) encryptPreprocess() (err error) {
 
 	// not encrypted file, skip
 	if bytes.Equal(DefHeader.Magic[:], header.Magic[:]) {
-		return ero.Wrap(err, "input file is already encrypted")
+		return ero.New("input file is already encrypted")
 	}
 
 	return nil
