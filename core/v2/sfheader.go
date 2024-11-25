@@ -23,21 +23,25 @@ type SFHeader struct {
 	Reserve [96]byte
 }
 
-var DefHeader = func() *SFHeader {
+var DefHeader *SFHeader
+
+func initDefHeader() *SFHeader {
 	header := &SFHeader{}
 	copy(header.Magic[:], "sfcrypt")
 	copy(header.Version[:], version.GetVersion())
 	return header
-}()
+}
 
-var MaxHeaderSize = func() int {
+var MaxHeaderSize int
+
+func initMaxHeaderSize() int {
 	header := &SFHeader{}
-	bytes, err := header.Bytes()
+	headerBytes, err := header.Bytes()
 	if err != nil {
 		panic(ero.Wrap(err, "failed to calculate max header size").Error())
 	}
 	// empty gob size aka reserved for no field size
-	baseSize := len(bytes)
+	baseSize := len(headerBytes)
 
 	// only exported field can be encoded
 	exportedNum := 0
@@ -67,7 +71,7 @@ var MaxHeaderSize = func() int {
 	maxSize *= 2
 
 	return maxSize
-}()
+}
 
 func (f *SFHeader) Bytes() ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
