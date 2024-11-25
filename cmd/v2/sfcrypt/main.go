@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	version.InitVersion(1, 9, 9)
+	version.InitVersion(2, 0, 0)
 	v2.InitSFHeader()
 }
 
