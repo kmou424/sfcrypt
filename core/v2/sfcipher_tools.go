@@ -2,7 +2,6 @@ package v2
 
 import (
 	"github.com/kmou424/ero"
-	. "github.com/kmou424/sfcrypt/app/common"
 	"github.com/kmou424/sfcrypt/app/version"
 )
 

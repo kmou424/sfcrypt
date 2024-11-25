@@ -5,8 +5,8 @@ import "github.com/kmou424/sfcrypt/core/keygen"
 // Cipher is a cipher used to encrypt/decrypt bytes
 type Cipher interface {
 	Init(gen keygen.KeyGen)
-	Encrypt(data []byte) ([]byte, error)
-	Decrypt(data []byte) ([]byte, error)
+	Encrypt(data []byte) error
+	Decrypt(data []byte) error
 }
 
 type FileCipherOptions struct {

@@ -44,12 +44,11 @@ func (c *SFCipher) decryptDoWithOffset(offset int64) (eof bool, err error) {
 		eof = true
 	}
 
-	out, err := c.opt.Cipher.Decrypt(buf)
+	err = c.opt.Cipher.Decrypt(buf)
 	if err != nil {
 		err = ero.Newf("process bytes %d - %d error: %v", offset, offset+int64(length), err)
 		return
 	}
-	copy(buf, out)
 
 	_, err = c.fOut.WriteAt(buf[:length], offset)
 	if err != nil {
