@@ -2,8 +2,9 @@ package v2
 
 import (
 	"bytes"
-	"github.com/kmou424/ero"
 	"io"
+
+	"github.com/kmou424/ero"
 )
 
 func (c *SFCipher) decryptPreprocess() (err error) {
@@ -16,6 +17,9 @@ func (c *SFCipher) decryptPreprocess() (err error) {
 	defer func() {
 		if err == nil || (err != nil && c.opt.Force) {
 			c.headerSize = int64(n)
+
+			// assign error to nil if force option is enabled
+			err = nil
 		}
 	}()
 

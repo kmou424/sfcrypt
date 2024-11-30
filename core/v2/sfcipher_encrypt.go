@@ -2,9 +2,10 @@ package v2
 
 import (
 	"bytes"
+	"io"
+
 	"github.com/kmou424/ero"
 	. "github.com/kmou424/sfcrypt/app/common"
-	"io"
 )
 
 func (c *SFCipher) encryptPreprocess() (err error) {
@@ -28,6 +29,9 @@ func (c *SFCipher) encryptPreprocess() (err error) {
 				err = ero.Wrap(err, "write file header error")
 			}
 			c.headerSize = int64(n)
+
+			// assign error to nil if force option is enabled
+			err = nil
 		}
 	}()
 
